@@ -4,13 +4,13 @@ Streaming upload [mydumper](https://github.com/maxbube/mydumper) output sql file
 
 ## Build
 
-```
+```shell
 $ go build -o myuploader .
 ```
 
 ## Config
 
-```
+```json
 {
     "directory": "./export-20201129-080140",
     "scanIntervalSec": 1, 
@@ -27,6 +27,6 @@ $ go build -o myuploader .
 
 ## Run
 
-```
+```shell
 $ ./myuploader -conf config.json
 ```
