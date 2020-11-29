@@ -12,17 +12,20 @@ $ go build -o myuploader .
 
 ```json
 {
-    "directory": "./export-20201129-080140",
+    "debug": true,
+    "directory": "./assets/backups/export",
+    "uploadWorkers": 10,
     "scanIntervalSec": 1, 
     "queueSize": 100,
     "minio": {
         "endpoint": "127.0.0.1:9000",
         "bucket": "polym.xyz",
-        "prefix": "xxx",
+        "prefix": "/xxx",
         "key": "AKIAIOSFODNN7EXAMPLE",
         "secret": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
     }
 }
+
 ```
 
 ## Run
