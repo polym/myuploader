@@ -11,6 +11,7 @@ import (
 )
 
 type Config struct {
+	Debug           bool        `json:"debug"`
 	Dir             string      `json:"directory"`
 	UploadWorkers   int         `json:"uploadWorkers"`
 	ScanIntervalSec int         `json:"scanIntervalSec"`
@@ -50,10 +51,20 @@ func main() {
 		logrus.Fatalf("parseConfig %s: %v", conf, err)
 	}
 
+	logrus.Infof("config: %+v", cfg)
+
 	mCli, err := NewMinioBucketCli(cfg.MinioOption)
 	if err != nil {
 		logrus.Fatalf("NewMinioBucketCli %+v: %v", cfg.MinioOption, err)
 	}
+
+	if cfg.Debug {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
+	logrus.SetFormatter(&logrus.TextFormatter{
+		TimestampFormat: "2006-01-02 15:04:05",
+		FullTimestamp:   true,
+	})
 
 	interval := time.Duration(cfg.ScanIntervalSec) * time.Second
 	h, err := NewMyUploader(cfg.Dir, cfg.UploadWorkers, cfg.QueueSize, interval, mCli)

@@ -67,6 +67,7 @@ func (self *MyUploader) doScan() {
 			logrus.Errorf("doScan: %v", err)
 		}
 		if finish {
+			logrus.Infof("doScan finished")
 			return
 		}
 	}
@@ -86,6 +87,8 @@ func (self *MyUploader) doOneScan() (bool, error) {
 		}
 		todoList = append(todoList, filename)
 	}
+
+	logrus.Debugf("todoList: %v", todoList)
 
 	findMetadata := false
 	for _, file := range todoList {
@@ -109,18 +112,18 @@ func (self *MyUploader) doOneScan() (bool, error) {
 		}
 	}
 
-	if findMetadata {
-		// mark dump finish and return
-		self.dumpFinish = true
-		return false, nil
-	}
-
 	if self.dumpFinish {
 		// close channel after dump finished
 		close(self.queue)
+		return true, nil
 	}
 
-	return true, nil
+	if findMetadata {
+		// mark dump finish
+		self.dumpFinish = true
+	}
+
+	return false, nil
 }
 
 func (self *MyUploader) doUpload() {

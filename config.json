@@ -1,6 +1,7 @@
 {
-    "directory": "./export-20201129-080140",
-    "uploadWorkers": 3,
+    "debug": true,
+    "directory": "./assets/backups/export",
+    "uploadWorkers": 10,
     "scanIntervalSec": 1, 
     "queueSize": 100,
     "minio": {
