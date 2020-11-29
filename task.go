@@ -7,6 +7,7 @@ import (
 	"path"
 	"regexp"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -19,20 +20,22 @@ var (
 )
 
 type MyUploader struct {
-	dir          string
-	scanInterval time.Duration
-	minio        *MinioBucketCli
+	dir           string
+	uploadWorkers int
+	scanInterval  time.Duration
+	minio         *MinioBucketCli
 
 	queue      chan string
 	doing      map[string]bool
 	dumpFinish bool
 }
 
-func NewMyUploader(dir string, qsize int, scanInterval time.Duration, m *MinioBucketCli) (*MyUploader, error) {
+func NewMyUploader(dir string, uploads, qsize int, scanInterval time.Duration, m *MinioBucketCli) (*MyUploader, error) {
 	return &MyUploader{
-		dir:          dir,
-		scanInterval: scanInterval,
-		minio:        m,
+		dir:           dir,
+		uploadWorkers: uploads,
+		scanInterval:  scanInterval,
+		minio:         m,
 
 		queue:      make(chan string, qsize),
 		doing:      make(map[string]bool),
@@ -42,7 +45,18 @@ func NewMyUploader(dir string, qsize int, scanInterval time.Duration, m *MinioBu
 
 func (self *MyUploader) Run() {
 	go self.doScan()
-	self.doUpload()
+
+	var wg sync.WaitGroup
+	for i := 0; i < self.uploadWorkers; i++ {
+		wg.Add(1)
+		go func() {
+			self.doUpload()
+			wg.Done()
+		}()
+	}
+
+	wg.Wait()
+	logrus.Infof("finish successfully")
 }
 
 func (self *MyUploader) doScan() {

@@ -12,6 +12,7 @@ import (
 
 type Config struct {
 	Dir             string      `json:"directory"`
+	UploadWorkers   int         `json:"uploadWorkers"`
 	ScanIntervalSec int         `json:"scanIntervalSec"`
 	QueueSize       int         `json:"queueSize"`
 	MinioOption     MinioOption `json:"minio"`
@@ -24,6 +25,7 @@ func parseConfig(path string) (*Config, error) {
 	}
 	cfg := &Config{
 		Dir:             "./",
+		UploadWorkers:   1,
 		ScanIntervalSec: 5,
 		QueueSize:       100,
 		MinioOption: MinioOption{
@@ -54,7 +56,7 @@ func main() {
 	}
 
 	interval := time.Duration(cfg.ScanIntervalSec) * time.Second
-	h, err := NewMyUploader(cfg.Dir, cfg.QueueSize, interval, mCli)
+	h, err := NewMyUploader(cfg.Dir, cfg.UploadWorkers, cfg.QueueSize, interval, mCli)
 	if err != nil {
 		logrus.Fatalf("NewMyUploader: %v", err)
 	}
